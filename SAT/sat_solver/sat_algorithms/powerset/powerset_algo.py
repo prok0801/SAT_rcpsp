@@ -1,6 +1,9 @@
+import os
+
 from pysat.solvers import Glucose3
 from sat_solver.sat_algorithms.utils import VariableFactory
-import csv
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
 #Equation (6): Ensure each task has one unique start time
 def encode_unique_start(solver, vf, max_time, task_id, duration):
@@ -164,58 +167,6 @@ def decode_solution(tasks, model, vf, consumptions):
 
     return schedule
 
-
-def export_schedule_to_csv(schedule, solver, vf, output_file="powerset.csv"):
-    """
-    Export schedule data to CSV file with specified metrics.
-
-    Args:
-        schedule (list): List of scheduled tasks
-        solver: SAT solver instance (for getting variable and clause counts)
-        vf: Variable factory instance
-        output_file (str): Path to output CSV file
-    """
-
-    # Calculate metrics
-    num_variables = solver.nof_vars()
-    num_clauses = solver.nof_clauses()
-
-    # Prepare data for CSV
-    csv_data = []
-    for task in schedule:
-        # Calculate execution time
-        execution_time = task['end_time'] - task['start_time']
-
-        # Format resource consumption
-        resources_consumed = []
-        for res in task.get('resources_consumed', []):
-            resources_consumed.append(f"R{res['resource_id']}: {res['amount']}")
-        resources_str = ', '.join(resources_consumed) if resources_consumed else "None"
-
-        # Create row data
-        row = {
-            'Task ID': task['task_id'],
-            'Type': 'powerset',  # as specified in the requirement
-            'Time': execution_time,
-            'Variables': num_variables,
-            'Clauses': num_clauses,
-            'Resources Consumed': resources_str,
-            'Start Time': task['start_time'],
-            'End Time': task['end_time']
-        }
-        csv_data.append(row)
-
-    # Write to CSV file
-    fieldnames = ['Task ID', 'Type', 'Time', 'Variables', 'Clauses',
-                  'Resources Consumed', 'Start Time', 'End Time']
-
-    with open(output_file, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(csv_data)
-
-    return output_file
-
 def solve_rcpsp(max_time, tasks, relations, consumptions, resources):
     solver = Glucose3()
     vf = VariableFactory()
@@ -247,15 +198,93 @@ def solve_rcpsp(max_time, tasks, relations, consumptions, resources):
     # Solve the problem
     if solver.solve():
         model = solver.get_model()
-        print("SAT: Có lời giải.")
-
-        # Decode and print the solution (Fix: Pass the 'consumptions' argument)
-        decoded_schedule = decode_solution(tasks, model, vf, consumptions)
-        export_schedule_to_csv(decoded_schedule, solver, vf, "powerset.csv")
-
-        solver.delete()
-        return model, vf
+        status = "SAT"
+        # Solver is returned along with other parts
+        return model, vf, solver, status
     else:
-        print("UNSAT: Không có lời giải.")
+        status = "UNSAT"
         solver.delete()
-        return None, None
+        return None, None, solver, status
+
+def export_schedule_to_xlsx(
+        schedule, solver, vf, status, tasks, resources, relations, start_task_id,
+        output_file, append=False):
+    """
+    Export schedule data to an Excel (.xlsx) file with simplified fields and plain unique sequential task IDs.
+
+    Args:
+        schedule (list): List of scheduled tasks.
+        solver: SAT solver instance (for getting variable and clause counts).
+        vf: VariableFactory instance.
+        status (str): Status (e.g., "SAT" or "UNSAT").
+        tasks (list): List of tasks.
+        resources (list): List of resources.
+        relations (list): List of relations.
+        start_task_id (int): Starting ID for the task numbering.
+        output_file (str): Path to output Excel file.
+        append (bool): Whether to append to an existing workbook or create a new one.
+    """
+    # Calculate problem metrics
+    num_variables = solver.nof_vars()
+    num_clauses = solver.nof_clauses()
+    num_tasks = len(tasks)
+    num_resources = len(resources)
+    num_relations = len(relations)
+    problem_field = f"{num_tasks}-{num_resources}-{num_relations}"
+
+    # Prepare data for Excel export
+    excel_data = []
+    current_task_id = start_task_id
+    for task in schedule:
+        # Calculate execution time
+        execution_time = task['end_time'] - task['start_time']
+
+        # Append row data
+        row = [
+            current_task_id,  # Task ID
+            problem_field,  # Problem
+            'powerset',  # Type
+            status,  # Status (SAT/UNSAT)
+            execution_time,  # Time
+            num_variables,  # Variables
+            num_clauses  # Clauses
+        ]
+        excel_data.append(row)
+
+        # Increment the task ID for the next task
+        current_task_id += 1
+
+    # Define column headers
+    headers = ['Task ID', 'Problem', 'Type', 'Status', 'Time', 'Variables', 'Clauses']
+
+    # Write to Excel file
+    if append and os.path.exists(output_file):
+        # Load the existing workbook if appending
+        from openpyxl import load_workbook
+        workbook = load_workbook(output_file)
+        sheet = workbook.active
+        starting_row = sheet.max_row + 1  # Start appending after the last row
+    else:
+        # Create a new workbook
+        workbook = Workbook()
+        sheet = workbook.active
+        starting_row = 1  # Write headers if creating a new file
+
+        # Write headers in the first row
+        for col_num, header in enumerate(headers, 1):
+            col_letter = get_column_letter(col_num)
+            sheet[f'{col_letter}{starting_row}'] = header
+        starting_row += 1  # Move to the next row for data
+
+    # Write data rows to the worksheet
+    for row_num, row_data in enumerate(excel_data, starting_row):
+        for col_num, cell_data in enumerate(row_data, 1):
+            col_letter = get_column_letter(col_num)
+            sheet[f'{col_letter}{row_num}'] = cell_data
+
+    # Save the changes to the output file
+    workbook.save(output_file)
+
+    # Return the last task ID used
+    return current_task_id
+

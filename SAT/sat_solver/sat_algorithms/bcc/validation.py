@@ -200,7 +200,7 @@ def print_validation_result(is_valid, validation_results):
     print_section("Resource Capacity Check", validation_results['resources'])
 
     # Print overall result
-    print("\nOverall Validation Result")
+    print("\nĐánh giá tổng thể")
     print("=======================")
     if is_valid:
         print("✓ PASSED - Tất cả các ràng buộc đều được thỏa mãn")

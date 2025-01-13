@@ -1,48 +1,55 @@
-import logging
-from typing import List, Dict
+import random
+from typing import List, Dict, Tuple, Union
 
-# Khởi tạo bài toán đầu vào
-def parse_input():
-    tasks = [
-        {"id": 0, "duration": 308, "name": "Task 0"},
-        {"id": 1, "duration": 10, "name": "Task 1"},
-        {"id": 2, "duration": 1, "name": "Task 2"},
-        {"id": 3, "duration": 20, "name": "Task 3"},
-        {"id": 4, "duration": 2, "name": "Task 4"},
-        {"id": 5, "duration": 5, "name": "Task 5"},
-        {"id": 6, "duration": 1, "name": "Task 6"}
-    ]
+# Generate datasets automatically
+def parse_input(num_datasets: int = 1) -> Union[
+    Tuple[List[Dict], List[Dict], List[Dict], List[Dict]],
+    List[Tuple[List[Dict], List[Dict], List[Dict], List[Dict]]],
+]:
+    all_datasets = []
 
-    # relations (aob, ea)
-    relations = [
-        {"task_id_1": 1, "task_id_2": 2, "relation_type": "ea"},  # Task 1 must finish before Task 2 starts
-        {"task_id_1": 2, "task_id_2": 3, "relation_type": "ea"},
-        {"task_id_1": 3, "task_id_2": 4, "relation_type": "ea"},
-        {"task_id_1": 4, "task_id_2": 5, "relation_type": "ea"},
-        {"task_id_1": 5, "task_id_2": 6, "relation_type": "ea"}
-    ]
+    for _ in range(num_datasets):
+        # Generate tasks
+        num_tasks = random.randint(5, 10)  # Random number of tasks
+        tasks = [
+            {
+                "id": i,
+                "duration": random.randint(1, 100),  # Random task duration
+                "name": f"Task {i}"
+            } for i in range(num_tasks)
+        ]
 
-    # consumption data (task_id, resource_id, amount)
-    consumptions = [
-        {"task_id": 1, "resource_id": 0, "amount": -3},
-        {"task_id": 3, "resource_id": 0, "amount": -3},
-        {"task_id": 3, "resource_id": 1, "amount": -3},
-        {"task_id": 3, "resource_id": 2, "amount": -3},
-        {"task_id": 4, "resource_id": 0, "amount": -3},
-        {"task_id": 4, "resource_id": 3, "amount": -3},
-        {"task_id": 4, "resource_id": 4, "amount": -3},
-        {"task_id": 5, "resource_id": 0, "amount": -3},
-        {"task_id": 5, "resource_id": 3, "amount": -3},
-        {"task_id": 5, "resource_id": 4, "amount": -3}
-    ]
+        # Generate relations (random dependencies)
+        relations = []
+        for i in range(1, num_tasks):
+            relations.append({
+                "task_id_1": random.randint(0, i - 1),  # Dependency on any previous task
+                "task_id_2": i,
+                "relation_type": random.choice(["ea", "aob"])  # Random relation type
+            })
 
-    # resources (capacity and names)
-    resources = [
-        {"id": 0, "capacity": 8, "name": "Resource 0"},
-        {"id": 1, "capacity": 8, "name": "Resource 1"},
-        {"id": 2, "capacity": 8, "name": "Resource 2"},
-        {"id": 3, "capacity": 8, "name": "Resource 3"},
-        {"id": 4, "capacity": 8, "name": "Resource 4"}
-    ]
+        # Generate resources
+        num_resources = random.randint(3, 6)  # Random number of resources
+        resources = [
+            {
+                "id": r,
+                "capacity": random.randint(5, 20),  # Resource capacity between 5 and 20
+                "name": f"Resource {r}"
+            } for r in range(num_resources)
+        ]
 
-    return tasks, relations, consumptions, resources
+        # Generate consumptions
+        consumptions = []
+        for task in tasks:
+            for resource in random.sample(resources, random.randint(1, len(resources))):  # Random subset of resources
+                consumptions.append({
+                    "task_id": task["id"],
+                    "resource_id": resource["id"],
+                    "amount": -random.randint(1, 5)  # Random consumption amount between -1 and -5
+                })
+
+        # Add the generated dataset to the list
+        all_datasets.append((tasks, relations, consumptions, resources))
+
+    # Return a single dataset if only one is generated, otherwise multiple datasets
+    return all_datasets[0] if num_datasets == 1 else all_datasets

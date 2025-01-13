@@ -280,19 +280,19 @@ def print_validation_result(is_valid, validation_results):
             print(f"  • {detail}")
 
         # Print detailed powerset combinations if available
-        if 'combinations_checked' in results:
-            print("\nDetailed Resource Usage Analysis:")
-            print("-------------------------------")
-            for time, combinations in results['combinations_checked'].items():
-                print(f"\nTime {time}:")
-                for combo in combinations:
-                    tasks_str = f"Tasks {combo['tasks']}"
-                    status_color = '✓' if combo['status'] == 'Valid' else '✗'
-                    print(f"\n  {status_color} {tasks_str}")
-                    print("    Resource Usage:")
-                    for res_id, usage in combo['resource_usage'].items():
-                        print(f"    - R{res_id}: {usage['usage']}/{usage['capacity']} "
-                              f"(Available: {usage['available']})")
+        # if 'combinations_checked' in results:
+            # print("\nDetailed Resource Usage Analysis:")
+            # print("-------------------------------")
+            # for time, combinations in results['combinations_checked'].items():
+            #     print(f"\nTime {time}:")
+            #     for combo in combinations:
+            #         tasks_str = f"Tasks {combo['tasks']}"
+            #         status_color = '✓' if combo['status'] == 'Valid' else '✗'
+            #         print(f"\n  {status_color} {tasks_str}")
+            #         print("    Resource Usage:")
+            #         for res_id, usage in combo['resource_usage'].items():
+            #             print(f"    - R{res_id}: {usage['usage']}/{usage['capacity']} "
+            #                   f"(Available: {usage['available']})")
 
     # Print each validation section
     print_section("Task Coverage Check", validation_results['task_coverage'])
@@ -302,7 +302,7 @@ def print_validation_result(is_valid, validation_results):
     print_section("Powerset Resource Constraint Check", validation_results['powerset'])
 
     # Print overall result
-    print("\nOverall Validation Result")
+    print("\nĐánh giá tổng thể")
     print("=======================")
     if is_valid:
         print("✓ PASSED - Tất cả các ràng buộc đều được thỏa mãn")
