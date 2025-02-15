@@ -1,55 +1,45 @@
-import random
+from pathlib import Path
+import json
 from typing import List, Dict, Tuple, Union
+import sys
 
-# Generate datasets automatically
-def parse_input(num_datasets: int = 1) -> Union[
+def parse_input(directory) -> Union[
     Tuple[List[Dict], List[Dict], List[Dict], List[Dict]],
     List[Tuple[List[Dict], List[Dict], List[Dict], List[Dict]]],
 ]:
+    directory_path = Path(directory)
     all_datasets = []
+    
+    if not directory_path.exists() or not directory_path.is_dir():
+        print(f"Directory {directory} does not exist or is not a folder.")
+        return []
+        
+    for txt_file in directory_path.rglob("*.txt"):
+        try:
+            with open(txt_file, "r", encoding="utf-8") as f:
+                data = json.loads(f.read())
+                
+                tasks = data.get("activities", [])
+                relations = data.get("relations", [])
+                consumptions = data.get("consumptions", [])
+                resources = data.get("resources", [])
+                
+                if not all([isinstance(tasks, list), isinstance(relations, list), 
+                          isinstance(consumptions, list), isinstance(resources, list)]):
+                    print(f"Invalid data format in {txt_file}")
+                    continue
+                    
+                all_datasets.append((tasks, relations, consumptions, resources))
+                
+        except json.JSONDecodeError as e:
+            print(f"JSON parsing error in {txt_file}: {str(e)}")
+            print(f"Full path: {txt_file.absolute()}")
+        except Exception as e:
+            print(f"Error reading {txt_file}: {str(e)}")
+            print(f"Full path: {txt_file.absolute()}")
+    
+    if len(all_datasets) == 1:
+        return all_datasets[0]
+    return all_datasets
 
-    for _ in range(num_datasets):
-        # Generate tasks
-        num_tasks = random.randint(5, 10)  # Random number of tasks
-        tasks = [
-            {
-                "id": i,
-                "duration": random.randint(1, 100),  # Random task duration
-                "name": f"Task {i}"
-            } for i in range(num_tasks)
-        ]
 
-        # Generate relations (random dependencies)
-        relations = []
-        for i in range(1, num_tasks):
-            relations.append({
-                "task_id_1": random.randint(0, i - 1),  # Dependency on any previous task
-                "task_id_2": i,
-                "relation_type": random.choice(["ea", "aob"])  # Random relation type
-            })
-
-        # Generate resources
-        num_resources = random.randint(3, 6)  # Random number of resources
-        resources = [
-            {
-                "id": r,
-                "capacity": random.randint(5, 20),  # Resource capacity between 5 and 20
-                "name": f"Resource {r}"
-            } for r in range(num_resources)
-        ]
-
-        # Generate consumptions
-        consumptions = []
-        for task in tasks:
-            for resource in random.sample(resources, random.randint(1, len(resources))):  # Random subset of resources
-                consumptions.append({
-                    "task_id": task["id"],
-                    "resource_id": resource["id"],
-                    "amount": -random.randint(1, 5)  # Random consumption amount between -1 and -5
-                })
-
-        # Add the generated dataset to the list
-        all_datasets.append((tasks, relations, consumptions, resources))
-
-    # Return a single dataset if only one is generated, otherwise multiple datasets
-    return all_datasets[0] if num_datasets == 1 else all_datasets

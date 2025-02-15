@@ -4,7 +4,7 @@ from sat_solver.sat_algorithms.powerset.validation import validate_input_data, v
 
 def main():
     # Parse datasets
-    datasets = parse_input(num_datasets=3)
+    datasets = parse_input("../../../../../../solve_input/output_txt")
 
     output_file = "powerset.xlsx"  # Final output file
     first_write = True  # Flag to manage 'write' or 'append' mode
