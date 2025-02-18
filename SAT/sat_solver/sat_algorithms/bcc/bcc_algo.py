@@ -3,7 +3,7 @@ import os
 from pypblib import pblib
 from pypblib.pblib import PBConfig, Pb2cnf
 from pysat.solvers import Glucose3
-from sat_solver.sat_algorithms.utils import VariableFactory
+from SAT.sat_solver.sat_algorithms.utils import VariableFactory
 
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter

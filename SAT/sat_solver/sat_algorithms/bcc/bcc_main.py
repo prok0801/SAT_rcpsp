@@ -1,11 +1,11 @@
-from sat_solver.sat_algorithms.bcc.bcc_algo import solve_rcpsp, decode_solution, export_schedule_to_xlsx
-from sat_solver.sat_algorithms.input_parser import parse_input
-from sat_solver.sat_algorithms.bcc.validation import validate_input_data, validate_schedule, print_validation_result
-from sat_solver.sat_algorithms.powerset.powerset_algo import decode_solution
+from SAT.sat_solver.sat_algorithms.bcc.bcc_algo import solve_rcpsp, decode_solution, export_schedule_to_xlsx
+from SAT.sat_solver.sat_algorithms.input_parser import parse_input
+from SAT.sat_solver.sat_algorithms.bcc.validation import validate_input_data, validate_schedule, print_validation_result
+from SAT.sat_solver.sat_algorithms.powerset.powerset_algo import decode_solution
 
 def main():
     # Parse datasets
-    datasets = parse_input("../../../../../../solve_input/output_txt")
+    datasets = parse_input("../../../../solve_input/output_txt")
 
     output_file = "bcc.xlsx"
     first_write = True

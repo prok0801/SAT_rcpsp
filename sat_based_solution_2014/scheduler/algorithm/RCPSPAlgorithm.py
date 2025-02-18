@@ -5,7 +5,7 @@ try:
 except ImportError:
     psutil = None
 
-from pysat.solvers import Minisat22
+from pysat.solvers import Glucose3  # Using Glucose3 instead of Minisat22
 
 # Import the project’s modules.
 from ..encoding.SATEncoder import SATEncoder
@@ -142,7 +142,7 @@ class RCPSPAlgorithm(Algorithm):
         :return: An instance of a PySAT solver.
         """
         # Note: Minisat22 from python-sat does not support a built-in timeout.
-        solver = Minisat22()
+        solver = Glucose3()
         return solver
 
     def get_min_time(self, activities):
