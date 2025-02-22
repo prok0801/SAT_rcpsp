@@ -159,11 +159,12 @@ def format_json_content(data):
     for rel in data['precedence_relations']:
         for succ in rel['successors']:
             relation_type = determine_relation_type(rel['job'], succ, data['precedence_relations'])
-            relations.append({
-                "task_id_1": rel['job'],
-                "task_id_2": succ,
-                "relation_type": relation_type
-            })
+            if succ != 0:
+                relations.append({
+                    "task_id_1": rel['job'],
+                    "task_id_2": succ,
+                    "relation_type": relation_type
+                })
     
     consumptions = []
     for job in data['job_details']:

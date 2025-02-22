@@ -5,7 +5,7 @@ from SAT.sat_solver.sat_algorithms.powerset.powerset_algo import decode_solution
 
 def main():
     # Parse datasets
-    datasets = parse_input("../../../../solve_input/output_txt")
+    datasets = parse_input("C:/Github for Lab/Rcpsp_SAT_Sl/solve_input/output_txt")
 
     output_file = "bcc.xlsx"
     first_write = True

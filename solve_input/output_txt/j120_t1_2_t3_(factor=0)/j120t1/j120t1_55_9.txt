@@ -2536,11 +2536,6 @@
       "task_id_1": 121,
       "task_id_2": 122,
       "relation_type": "ee"
-    },
-    {
-      "task_id_1": 122,
-      "task_id_2": 0,
-      "relation_type": "es"
     }
   ],
   "consumptions": [

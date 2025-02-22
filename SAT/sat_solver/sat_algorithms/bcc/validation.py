@@ -26,7 +26,7 @@ def validate_input_data(tasks: List[Dict], relations: List[Dict],
 
     for task in tasks:
         # Check task duration is positive
-        if task.get('duration', 0) <= 0:
+        if task.get('duration', 0) < 0:
             logger.error(f"Invalid duration for task {task.get('id')}: {task.get('duration')}")
             validation_passed = False
 

@@ -571,11 +571,6 @@
       "task_id_1": 31,
       "task_id_2": 32,
       "relation_type": "ee"
-    },
-    {
-      "task_id_1": 32,
-      "task_id_2": 0,
-      "relation_type": "es"
     }
   ],
   "consumptions": [
