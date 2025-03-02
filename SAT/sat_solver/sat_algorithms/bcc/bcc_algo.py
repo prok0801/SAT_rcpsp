@@ -227,6 +227,9 @@ def solve_rcpsp(max_time, tasks, relations, consumptions, resources):
     solver = Glucose3()
     vf = VariableFactory()
 
+    # Add logging for encoding process
+    print(f"Encoding constraints for {len(tasks)} tasks and {len(resources)} resources...")
+    
     # Encoding tasks with ALK, start time, runtime constraints
     for task in tasks:
         encode_unique_start_instant_alk(solver, vf, max_time, task["id"], task["duration"])
@@ -254,6 +257,9 @@ def solve_rcpsp(max_time, tasks, relations, consumptions, resources):
     # Solve the problem and calculate variables & clauses
     variables, clauses = solver.nof_vars(), solver.nof_clauses()
 
+    # Add logging before solving
+    print(f"Starting SAT solver with {solver.nof_vars()} variables and {solver.nof_clauses()} clauses...")
+    
     if solver.solve():
         model = solver.get_model()
         status = "SAT"

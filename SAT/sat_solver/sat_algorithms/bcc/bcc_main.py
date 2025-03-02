@@ -5,7 +5,7 @@ from SAT.sat_solver.sat_algorithms.powerset.powerset_algo import decode_solution
 
 def main():
     # Parse datasets
-    datasets = parse_input("C:/Github for Lab/Rcpsp_SAT_Sl/solve_input/output_txt")
+    datasets = parse_input("C:/Github for Lab/Rcpsp_SAT_Sl/solve_input/output_txt/j30_t1_t2_t3_(factor=0)/j30t1")
 
     output_file = "bcc.xlsx"
     first_write = True
@@ -36,8 +36,14 @@ def main():
             continue
 
         # Solve RCPSP problem
-        max_time = 350
+        max_time = 600
         model, vf, variables, clauses, status = solve_rcpsp(max_time, tasks, relations, consumptions, resources)
+
+        # Add logging
+        print(f"\nProblem Statistics:")
+        print(f"Number of variables: {variables}")
+        print(f"Number of clauses: {clauses}")
+        print(f"Solution status: {status}")
 
         if status == "SAT" and model is not None:
             # Decode solution
