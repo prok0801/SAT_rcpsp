@@ -14,7 +14,7 @@ def parse_input(directory) -> Union[
         print(f"Directory {directory} does not exist or is not a folder.")
         return []
         
-    for txt_file in directory_path.rglob("*.txt"):
+    for txt_file in directory_path.rglob("*.json"):
         try:
             with open(txt_file, "r", encoding="utf-8") as f:
                 data = json.loads(f.read())
